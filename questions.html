@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Climatology Part-2</title>
+<style>body{font-family:sans-serif;padding:10px;background:#f9f9f9}
+.question{margin-bottom:10px;padding:10px;background:#fff;border-radius:6px}
+.question-number{font-weight:bold}.options{display:flex;gap:10px;flex-wrap:wrap}
+.options button{flex:1 1 70px;padding:10px;border:1px solid #007bff;background:#fff;color:#007bff;
+border-radius:4px;cursor:pointer}.options button.selected{background:#28a745;color:#fff}
+.action-button{margin:10px 5px;padding:10px 20px;background:#007bff;color:#fff;border:none;
+border-radius:6px;cursor:pointer}</style></head><body>
+<h2>Climatology Part-2</h2>
+<label><input type="checkbox" checked onchange="toggleNegativeMarking(this)"> Negative Marking</label>
+<div id="omr-sheet"></div>
+<button class="action-button" onclick="saveAnswers()">💾 Save</button>
+<button class="action-button" onclick="calculateScore()">🧮 Check Score</button>
+<script>
+const answers = JSON.parse(localStorage.getItem("omr_Climatology_Part-2")||"{}");
+let answerKey = {
+  "1": "C",
+  "2": "A",
+  "3": "B",
+  "4": "D",
+  "5": "C",
+  "6": "B",
+  "7": "D",
+  "8": "C",
+  "9": "B",
+  "10": "A",
+  "11": "D",
+  "12": "C",
+  "13": "A",
+  "14": "D",
+  "15": "C",
+  "16": "B",
+  "17": "C",
+  "18": "D",
+  "19": "A",
+  "20": "D",
+  "21": "A",
+  "22": "C",
+  "23": "B",
+  "24": "D",
+  "25": "A",
+  "26": "A",
+  "27": "B",
+  "28": "B",
+  "29": "C",
+  "30": "A",
+  "31": "D",
+  "32": "D",
+  "33": "C",
+  "34": "A",
+  "35": "B",
+  "36": "C",
+  "37": "D",
+  "38": "A",
+  "39": "C",
+  "40": "B",
+  "41": "C",
+  "42": "A",
+  "43": "D",
+  "44": "B",
+  "45": "A",
+  "46": "D",
+  "47": "B",
+  "48": "A",
+  "49": "D",
+  "50": "C"
+}, negativeMarking = true;
+function toggleNegativeMarking(cb){negativeMarking=cb.checked}
+function saveAnswers(){localStorage.setItem("omr_Climatology_Part-2", JSON.stringify(answers));alert("Saved!")}
+function selectOption(q,opt,btn){answers[q]=opt;
+document.querySelectorAll(`.question[data-q="${q}"] button`).forEach(b=>b.classList.remove('selected'));
+btn.classList.add('selected');}
+function calculateScore(){let c=0,w=0;
+for(let i=1;i<=150;i++){if(answers[i]){if(answerKey[i]&&answers[i]===answerKey[i])c++;else if(answerKey[i])w++;}}
+let s=negativeMarking?c*4-w:c*4;alert(`✅ Correct: ${c}\n❌ Wrong: ${w}\n🎯 Score: ${s}`);}
+function loadAnswers(){Object.keys(answers).forEach(q=>{let o=answers[q];
+let b=document.querySelector(`.question[data-q="${q}"] button:nth-child(${o.charCodeAt(0)-64})`);if(b)b.classList.add('selected');})}
+function build(){let c=document.getElementById("omr-sheet");
+for(let i=1;i<=150;i++){let d=document.createElement("div");d.className="question";d.dataset.q=i;
+d.innerHTML=`<div class="question-number">Question ${i}</div><div class="options">
+<button onclick="selectOption(${i},'A',this)">A</button><button onclick="selectOption(${i},'B',this)">B</button>
+<button onclick="selectOption(${i},'C',this)">C</button><button onclick="selectOption(${i},'D',this)">D</button></div>`;
+c.appendChild(d);}}build();loadAnswers();
+</script></body></html>
