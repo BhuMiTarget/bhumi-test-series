@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Climatology Part-1</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+    .question {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #fff;
+      border-radius: 6px;
+    }
+    .question-number {
+      font-weight: bold;
+    }
+    .options {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .options button {
+      flex: 1 1 70px;
+      padding: 10px;
+      border: 1px solid #007bff;
+      background: #fff;
+      color: #007bff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .options button.selected {
+      background: #28a745;
+      color: #fff;
+    }
+    .options button.wrong {
+      background: #dc3545 !important;
+      color: #fff !important;
+    }
+    .action-button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #timer {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-left: 15px;
+      color: #dc3545;
+    }
+    #responseBox {
+      width: 100%;
+      height: 200px;
+      margin-top: 20px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Climatology Part-1</h2>
+  <label><input type="checkbox" checked onchange="toggleNegativeMarking(this)"> Negative Marking</label>
+  <span id="timer"></span>
+  <div id="omr-sheet"></div>
+  <button class="action-button" onclick="saveAnswers()">💾 Save</button>
+  <button class="action-button" onclick="calculateScore()">🧮 Check Score</button>
+  <button class="action-button" onclick="startTimer()">⏱ Start Timer</button>
+  <button class="action-button" onclick="generateAnswerKey()">📋 Copy My Answers</button>
+
+  <textarea id="responseBox" placeholder="Your responses will appear here..."></textarea>
+
+  <script>
+    const answers = JSON.parse(localStorage.getItem("omr_Geomorphology_Part-2") || "{}");
+    let startTime = null;
+
+    let answerKey = {
+      "1": "B", "2": "C", "3": "C", "4": "C", "5": "C",
+      "6": "B", "7": "B", "8": "B", "9": "B", "10": "D",
+      "11": "A", "12": "A", "13": "A", "14": "B", "15": "B",
+      "16": "B", "17": "A", "18": "B", "19": "B", "20": "A",
+      "21": "B", "22": "A", "23": "C", "24": "B", "25": "B",
+      "26": "D", "27": "A", "28": "C", "29": "B", "30": "B",
+      "31": "C", "32": "B", "33": "A", "34": "C", "35": "A",
+      "36": "D", "37": "A", "38": "B", "39": "D", "40": "B",
+      "41": "C", "42": "C", "43": "B", "44": "B", "45": "C",
+      "46": "A", "47": "A", "48": "C", "49": "A", "50": "C",
+      "51": "C", "52": "B", "53": "B", "54": "A", "55": "A",
+      "56": "A", "57": "C", "58": "B", "59": "A", "60": "B",
+      "61": "B", "62": "B", "63": "A", "64": "D", "65": "B",
+      "66": "B", "67": "A", "68": "C", "69": "A", "70": "D",
+      "71": "A", "72": "A", "73": "C", "74": "B", "75": "C",
+      "76": "D", "77": "A", "78": "B", "79": "C", "80": "B",
+      "81": "C", "82": "B", "83": "B", "84": "C", "85": "A",
+      "86": "B", "87": "A", "88": "C", "89": "D", "90": "A",
+      "91": "A", "92": "C", "93": "B", "94": "D", "95": "B",
+      "96": "B", "97": "C", "98": "D", "99": "C", "100": "A"
+    }, negativeMarking = true;
+
+    function toggleNegativeMarking(cb) {
+      negativeMarking = cb.checked;
+    }
+
+    function saveAnswers() {
+      localStorage.setItem("omr_Geomorphology_Part-2", JSON.stringify(answers));
+      alert("Saved!");
+    }
+
+    function selectOption(q, opt, btn) {
+      answers[q] = opt;
+      document.querySelectorAll(`.question[data-q="${q}"] button`).forEach(b => {
+        b.classList.remove('selected', 'wrong');
+      });
+      btn.classList.add('selected');
+    }
+
+    function calculateScore() {
+      let correct = 0, wrong = 0;
+      for (let i = 1; i <= 100; i++) {
+        const selected = answers[i];
+        const key = answerKey[i];
+        const btns = document.querySelectorAll(`.question[data-q="${i}"] button`);
+        btns.forEach(b => b.classList.remove('wrong'));
+
+        if (selected) {
+          if (key && selected === key) {
+            correct++;
+          } else if (key) {
+            wrong++;
+            const wrongBtn = [...btns].find(b => b.textContent.trim() === selected);
+            if (wrongBtn) wrongBtn.classList.add('wrong');
+          }
+        }
+      }
+
+      let timeTaken = "";
+      if (startTime) {
+        const diff = Math.floor((Date.now() - startTime) / 1000);
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        timeTaken = `\n⏱ Time Taken: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      }
+
+      const score = negativeMarking ? (correct * 3 - wrong) : (correct * 1);
+      alert(`✅ Correct: ${correct}\n❌ Wrong: ${wrong}\n🎯 Score: ${score}${timeTaken}`);
+    }
+
+    function loadAnswers() {
+      Object.keys(answers).forEach(q => {
+        const opt = answers[q];
+        const btn = document.querySelector(`.question[data-q="${q}"] button:nth-child(${opt.charCodeAt(0) - 64})`);
+        if (btn) btn.classList.add('selected');
+      });
+    }
+
+    function build() {
+      const c = document.getElementById("omr-sheet");
+      for (let i = 1; i <= 100; i++) {
+        const d = document.createElement("div");
+        d.className = "question";
+        d.dataset.q = i;
+        d.innerHTML = `<div class="question-number">Question ${i}</div><div class="options">
+          <button onclick="selectOption(${i},'A',this)">A</button>
+          <button onclick="selectOption(${i},'B',this)">B</button>
+          <button onclick="selectOption(${i},'C',this)">C</button>
+          <button onclick="selectOption(${i},'D',this)">D</button></div>`;
+        c.appendChild(d);
+      }
+    }
+
+    function startTimer() {
+      const timerDisplay = document.getElementById('timer');
+      let seconds = 60 * 60;
+      startTime = Date.now();
+
+      function update() {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        timerDisplay.textContent = `Time Left: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (seconds <= 0) {
+          clearInterval(timerInterval);
+          alert("⏰ Time's up!");
+          timerDisplay.textContent = "Time's up!";
+        }
+        seconds--;
+      }
+
+      update();
+      const timerInterval = setInterval(update, 1000);
+    }
+
+    function generateAnswerKey() {
+      const output = {};
+      for (let i = 1; i <= 100; i++) {
+        if (answers[i]) output[i] = answers[i];
+      }
+      document.getElementById("responseBox").value = JSON.stringify(output, null, 2);
+    }
+
+    build();
+    loadAnswers();
+  </script>
+</body>
+</html>
