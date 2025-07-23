@@ -199,7 +199,7 @@
 
     function generateAnswerKey() {
       const output = {};
-      for (let i = 1; i <= 100; i++) {
+      for (let i = 1; i <= 150; i++) {
         if (answers[i]) output[i] = answers[i];
       }
       document.getElementById("responseBox").value = JSON.stringify(output, null, 2);
